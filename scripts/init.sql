@@ -1,10 +1,10 @@
 -- EGRESOFT DATASBE
 
 -- CREACION DE LA BASE DE DATOS
-CREATE DATABASE bytesbrains;
+CREATE DATABASE graduates;
 
 -- Conexion al bytesbrains
-\c bytesbrains
+\c graduates
 -- Creación de dominios
 CREATE DOMAIN tipo_telefono AS VARCHAR(10) CHECK (VALUE IN ('casa', 'celular', 'trabajo'));
 

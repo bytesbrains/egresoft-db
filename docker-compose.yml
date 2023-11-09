@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   postgres_db:
-    image: postgres:latest
+    image: mrgabdev/preloaded_db
     container_name: PostgresCont
     restart: always
     environment:
@@ -11,7 +11,6 @@ services:
       - '5432:5432'
     volumes:
       - postgres_db:/var/lib/postgresql/data
-      - ./scripts:/docker-entrypoint-initdb.d/postgresql/scripts
 volumes:
   postgres_db:
     driver: local
