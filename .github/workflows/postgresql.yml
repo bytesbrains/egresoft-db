@@ -24,7 +24,7 @@ jobs:
           PGUSER: ${{ secrets.USER }}
           PGPASSWORD: ${{ secrets.PASSWORD }}
         run: |
-          psql -h $PGHOST -U $PGUSER -d $PGDATABASE -f /scripts/init.sql
+          psql -h $PGHOST -U $PGUSER -d $PGDATABASE -p 5432-f scripts/init.sql
 
       - name: Verify if init.sql was executed successfully
         env:
@@ -34,4 +34,4 @@ jobs:
           PGPASSWORD: ${{ secrets.PASSWORD }}
         run: |
           sleep 5
-          psql -h $PGHOST -U $PGUSER -d $PGDATABASE -c "SELECT COUNT(*) FROM egresado_basico;"
+          psql -h $PGHOST -U $PGUSER -d $PGDATABASE -p 5432 -c "SELECT COUNT(*) FROM egresado_basico;"
