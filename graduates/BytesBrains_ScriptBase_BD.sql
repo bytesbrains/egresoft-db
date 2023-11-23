@@ -61,7 +61,7 @@ CREATE TABLE usuarios (
   tipo char(50) NOT NULL,
   correo VARCHAR(255),
   CONSTRAINT ck_usuarios_solo_alfabeto 
-  CHECK (tipo in ('EGRESADO', 'EMPLEADOR', 'ADMINISTRATIVO')),--Esta rescriccion solo acepta tres opciones
+  CHECK (tipo in ('graduate', 'admin', 'employer')),--Esta rescriccion solo acepta tres opciones
   CONSTRAINT ck_correo
   CHECK (correo ~ '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+(\.[a-zA-Z]{2,})+$')-- Restriccion que solo acepta correos
 );
