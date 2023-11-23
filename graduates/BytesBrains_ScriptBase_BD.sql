@@ -24,19 +24,19 @@ CREATE TABLE carrera (
   evaluador VARCHAR(255) NOT NULL,
   CONSTRAINT pk_carrera PRIMARY KEY (id_carrera, modalidad),
   CONSTRAINT ck_carrera_modalidad
-  CHECK (modalidad in ('PRESENCIAL', 'DISTANCIA')),--Esta restriccion solo acepta Presencial o aDistancia
+  CHECK (modalidad ~ '^[[:alpha:][:space:]]+$'),--Esta restriccion solo acepta Presencial o aDistancia
   CONSTRAINT ck_carrera_solo_alfabeto
-  CHECK (nombre ~ '^[a-zA-Z ]+$'
-    AND jefe_dpt ~ '^[a-zA-Z ]+$'
-    AND cordinador ~ '^[a-zA-Z ]+$'
-    AND evaluador ~ '^[a-zA-Z ]+$')--Esta rescriccion solo acepta caracteres Alfabeticos
+  CHECK (nombre ~ '^[[:alpha:][:space:]]+$'
+    AND jefe_dpt ~ '^[[:alpha:][:space:]]+$'
+    AND cordinador ~ '^[[:alpha:][:space:]]+$'
+    AND evaluador ~ '^[[:alpha:][:space:]]+$')--Esta rescriccion solo acepta caracteres Alfabeticos
 );
 
 CREATE TABLE especialidad (
   id_especialidad char(50) PRIMARY KEY,
   nombre char(50) NOT NULL,
   CONSTRAINT ck_especialidad_solo_alfabeto
-  CHECK (nombre ~ '^[a-zA-Z ]+$')--Esta rescriccion solo acepta caracteres Alfabeticos
+  CHECK (nombre ~ '^[[:alpha:][:space:]]+$')--Esta rescriccion solo acepta caracteres Alfabeticos
 );
 
 CREATE TABLE plan_estudio (
@@ -50,9 +50,9 @@ CREATE TABLE plan_estudio (
   CONSTRAINT fk2_plan_estudio FOREIGN KEY (id_especialidad) 
   REFERENCES especialidad (id_especialidad) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT ck_plan_solo_alfabeto
-  CHECK (modalidad in ('Precencial', 'aDistancia')),--Esta restriccion solo acepta Presencial o aDistancia
+  CHECK (modalidad ~ '^[[:alpha:][:space:]]+$'),--Esta restriccion solo acepta Presencial o aDistancia
   CONSTRAINT ck_plan_periodo 
-  CHECK (periodo ~ '^[a-zA-Z]+[ -]+[a-zA-Z]+[ -]+[0-9]{4}$')--solo acepta esta estructura mes-mes nnnn ejemplo Agosto-Diciembre 2023
+  CHECK (periodo ~ '^[[:alpha:][:space:]]+[ -]+[[:alpha:][:space:]]+[ -]+[[:digit:][:space:]]{4}$')--solo acepta esta estructura mes-mes nnnn ejemplo Agosto-Diciembre 2023
 );
 
 --Tabla Usuario
@@ -60,8 +60,8 @@ CREATE TABLE usuarios (
   id_user char(50) PRIMARY KEY,
   tipo char(50) NOT NULL,
   correo VARCHAR(255),
-  CONSTRAINT ck_usuarios_solo_alfabeto 
-  CHECK (tipo in ('graduate', 'admin', 'employer')),--Esta rescriccion solo acepta tres opciones
+ CONSTRAINT ck_usuarios_solo_alfabeto 
+  CHECK (tipo ~ '^[[:alpha:][:space:]]+$'),--Esta rescriccion solo acepta tres opciones
   CONSTRAINT ck_correo
   CHECK (correo ~ '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+(\.[a-zA-Z]{2,})+$')-- Restriccion que solo acepta correos
 );
@@ -79,8 +79,8 @@ CREATE TABLE administrativo_basico (
   CONSTRAINT fk_administrativo FOREIGN KEY (id_adm)
   REFERENCES usuarios (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT ck_administrativo_solo_alfabeto
-  CHECK (nombre ~ '^[a-zA-Z ]+$'
-  AND cargo ~ '^[a-zA-Z ]+$'),--Esta rescriccion solo acepta caracteres Alfabeticos
+  CHECK (nombre ~ '^[[:alpha:][:space:]]+$'
+  AND cargo ~ '^[[:alpha:][:space:]]+$'),--Esta rescriccion solo acepta caracteres Alfabeticos
   CONSTRAINT ck_administrativo_genero
   CHECK (valida_genero(genero))-- Restriccion para validar El genero
 );
@@ -98,9 +98,9 @@ CREATE TABLE empleador_basico (
   CONSTRAINT fk_empleador_basico FOREIGN KEY (id_emp)
   REFERENCES usuarios (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT ck_empleador_solo_alfabetico 
-  CHECK (nombre_empresa ~ '^[a-zA-Z ]+$'
-  AND nombre_responsable ~ '^[a-zA-Z ]+$'
-  AND cargo_responsable ~ '^[a-zA-Z ]+$')--Esta rescriccion solo acepta caracteres Alfabeticos
+  CHECK (nombre_empresa ~ '^[[:alpha:][:space:]]+$'
+  AND nombre_responsable ~ '^[[:alpha:][:space:]]+$'
+  AND cargo_responsable ~ '^[[:alpha:][:space:]]+$')--Esta rescriccion solo acepta caracteres Alfabeticos
 );
 
 -- TABLAS DE EGRESADO
@@ -124,9 +124,9 @@ CREATE TABLE egresado_basico (
   CONSTRAINT fk3_egresado_basico FOREIGN KEY (id_especialidad) 
   REFERENCES especialidad (id_especialidad) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT ck_egresado_modalidad
-  CHECK (modalidad in ('PRESENCIAL', 'DISTANCIA')),--Esta restriccion solo acepta Presencial o Distancia
+  CHECK (modalidad ~ '^[[:alpha:][:space:]]+$'),--Esta restriccion solo acepta Presencial o Distancia
   CONSTRAINT ck_periodo_egreso 
-  CHECK (periodo_egreso ~ '^[a-zA-Z]+[ -]+[a-zA-Z]+[ -]+[0-9]{4}$'), --solo acepta esta estructura mes-mes nnnn ejemplo Agosto-Diciembre 2023
+  CHECK (periodo_egreso ~ '^[[:alpha:][:space:]]+[ -]+[[:alpha:][:space:]]+[ -]+[[:digit:][:space:]]{4}$'), --solo acepta esta estructura mes-mes nnnn ejemplo Agosto-Diciembre 2023
   CONSTRAINT ck_solo_existen_dos_generos 
   CHECK (valida_genero(sexo))-- Restriccion para validar El genero
 );
@@ -145,14 +145,15 @@ CREATE TABLE experiencia_laboral (
   CONSTRAINT fk_experiencia_laboral FOREIGN KEY (id_egre) 
   REFERENCES egresado_basico (id_egre) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT ck_exp_solo_alfabeto
-  CHECK (empresa ~ '^[a-zA-Z ]+$'
-  AND cargo ~ '^[a-zA-Z ]+$'),
+  CHECK (empresa ~ '^[[:alpha:][:space:]]+$'
+  AND cargo ~ '^[[:alpha:][:space:]]+$'),
   CONSTRAINT ck_exp_fecha 
   CHECK (EXTRACT(YEAR FROM fecha_inicio) >= 1950
-  AND EXTRACT(YEAR FROM fecha_fin) >=1950),-- Esta restriccion solo acepta fechas a partir del año 1950
+  AND EXTRACT(YEAR FROM fecha_fin) >=1950),
   CONSTRAINT ck_exp_estado
-  CHECK (estado in ('ACTIVO', 'FINALIZADO'))--Esta restriccion solo acepta dos opciones
+  CHECK (estado ~ '^[[:alpha:][:space:]]+$')
 );
+
 -- Tabla de datos grandes, sirve para almacenar archivos como jpg, pdf, svg, png 
 CREATE TABLE bigdat (
   id char(50),
@@ -163,7 +164,7 @@ CREATE TABLE bigdat (
   CONSTRAINT fk_bigdat FOREIGN KEY (id_egre)
   REFERENCES egresado_basico (id_egre) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT ck_bigdat_tipo 
-  CHECK (tipo in ('JPG', 'PDF', 'SVG', 'PNG'))
+  CHECK (tipo ~ '^[[:alpha:][:space:]]+$')
 );
 -- TABLAS DE ENCUESTA
 CREATE TABLE encuesta (
@@ -175,10 +176,10 @@ CREATE TABLE encuesta (
   detalle TEXT,
   CONSTRAINT pk_encuesta PRIMARY KEY (id_encuesta, id_secc),
   CONSTRAINT ck_encuesta_periodo 
-  CHECK (periodo_vigente ~ '^[a-zA-Z]+[ -]+[a-zA-Z]+[ -]+[0-9]{4}$'),--solo acepta esta estructura mes-mes nnnn ejemplo Agosto-Diciembre 2023
+  CHECK (periodo_vigente ~ '^[[:alpha:][:space:]]+[ -]+[[:alpha:][:space:]]+[ -]+[[:digit:][:space:]]{4}$'),--solo acepta esta estructura mes-mes nnnn ejemplo Agosto-Diciembre 2023
   CONSTRAINT ck_encuesta_solo_alfabeto
-  CHECK (nombre_encuesta ~ '^[a-zA-Z 0-9]+$'
-  AND nombre_secc ~ '^[a-zA-Z 0-9]+$')
+  CHECK (nombre_encuesta ~ '^[[:alpha:][:digit:][:space:]]+$'
+  AND nombre_secc ~ '^[[:alpha:][:digit:][:space:]]+$')
 );
 
 CREATE TABLE pregunta (
@@ -190,8 +191,9 @@ CREATE TABLE pregunta (
   CONSTRAINT fk1_pregunta FOREIGN KEY (id_encuesta, id_secc) 
   REFERENCES encuesta (id_encuesta, id_secc) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT ck_pregunta_tipo 
-  CHECK (tipo ~ '^[a-zA-Z 0-9]+$')
+  CHECK (tipo ~ '^[[:alpha:][:digit:][:space:]]+$')
   );
+
 -- TABLA DEL PROCESO DE ENCUESTA
 CREATE TABLE respuesta_Usuario (
   id_respuesta CHAR(50) PRIMARY KEY,
@@ -210,7 +212,7 @@ CREATE TABLE respuesta_Usuario (
   CHECK (EXTRACT(YEAR FROM fecha_envio) >= 1950
   AND EXTRACT(YEAR FROM fecha_respuesta) >=1950),
   CONSTRAINT ck_Ru_estado
-  CHECK (estado in ('ENVIADO', 'EN PROGRESO', 'CONTESTADO', 'FINALIZADO'))
+  CHECK (estado ~ '^[[:alpha:][:space:]]+$')
 );
 --Tabla Respuesta detalladad
 CREATE TABLE respuesta_detallada (
