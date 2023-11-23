@@ -11,6 +11,19 @@ CREATE DOMAIN tipo_telefono AS VARCHAR(10) CHECK (VALUE IN ('casa', 'celular', '
 CREATE DOMAIN tipo_archivo AS VARCHAR(10)
 CHECK (VALUE IN ('pdf', 'doc', 'docx'));
 
+--Funcion para validar genero
+CREATE OR REPLACE FUNCTION valida_genero(sexo CHAR(50))
+RETURNS BOOLEAN AS $$
+BEGIN
+    IF sexo IN ('Hombre', 'Mujer', 'Indefinido') THEN
+        RETURN TRUE;
+    ELSE
+        RAISE EXCEPTION 'Solo existen dos géneros: Hombre y Mujer';
+        RETURN FALSE;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
 -- Creación de tablas
 -- TABLAS DE CARRERAS
 CREATE TABLE carrera (
