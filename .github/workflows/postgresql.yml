@@ -14,10 +14,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-     - uses: harmon758/postgresql-action@v1
+     - name: Checkout repository
+       uses: actions/checkout@v3
+
+     - name: Execute init.sql
+       uses: harmon758/postgresql-action@v1
        with:
         postgresql version: '15'
         postgresql db: ${{ secrets.DB }}
         postgresql user: ${{ secrets.USER }}
         postgresql password: ${{ secrets.PASSWORD }} 
         postgresql init scripts: /scripts/init.sql
+
+     - name: Verify if init.sql was executed successfully
+       run: |
+        sleep 5
+        psql -h ${{ secrets.HOST }} -U ${{ secrets.USER }} -d ${{ secrets.DB }} -c "SELECT COUNT(*) FROM egresado_basico;"
