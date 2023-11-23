@@ -30,9 +30,9 @@ jobs:
 
     - name: Execute init.sql
       run: |
-        psql -h ${{ secrets.USER }} -U ${{ secrets.PASSWORD }} -d ${{ secrets.DB }} -a -f scripts/init.sql
+        psql -h localhost - U ${{ secrets.USER }} -d ${{ secrets.DB }} -a -f scripts/init.sql
 
     - name: Verify if init.sql was executed successfully
       run: |
         sleep 5
-        psql -h ${{ secrets.USER }} -U ${{ secrets.PASSWORD }} -d ${{ secrets.DB }} -c "SELECT COUNT(*) FROM egresado_basico;"
+        psql -h localhost - U ${{ secrets.USER }} -d ${{ secrets.DB }} -c "SELECT COUNT(*) FROM egresado_basico;"
