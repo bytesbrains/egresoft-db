@@ -13,6 +13,17 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: ${{ secrets.DB }}
+          POSTGRES_USER: ${{ secrets.USER }}
+          POSTGRES_PASSWORD: ${{ secrets.PASSWORD }}
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -32,6 +43,7 @@ jobs:
           PGDATABASE: ${{ secrets.DB }}
           PGUSER: ${{ secrets.USER }}
           PGPASSWORD: ${{ secrets.PASSWORD }}
+          PGPORT: 5432
         run: |
           sleep 5
-          psql -h $PGHOST -U $PGUSER -d $PGDATABASE -p 5432 -c "SELECT COUNT(*) FROM egresado_basico;"
+          psql -h $PGHOST -U $PGUSER -d $PGDATABASE -p $PGPORT -c "SELECT COUNT(*) FROM egresado_basico;"
