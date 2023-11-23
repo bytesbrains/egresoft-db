@@ -30,7 +30,7 @@ jobs:
 
     - name: Execute init.sql
       run: |
-        sql -h ${{ secrets.USER }} -U ${{ secrets.PASSWORD }} -d ${{ secrets.DB }} -a -f scripts/init.sql
+        psql -h ${{ secrets.USER }} -U ${{ secrets.PASSWORD }} -d ${{ secrets.DB }} -a -f scripts/init.sql
 
     - name: Verify if init.sql was executed successfully
       run: |
