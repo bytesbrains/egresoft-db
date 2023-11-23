@@ -1,0 +1,38 @@
+name: PostgreSQL Test
+
+on:
+ push:
+    branches:
+      - main
+ pull_request:
+    branches:
+      - main
+      
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: ${{ secrets.USER }}
+          POSTGRES_PASSWORD: ${{ secrets.PASSWORD }}
+          POSTGRES_DB: ${{ secrets.DB }}
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Execute init.sql
+      run: |
+        psql -h localhost -U myuser -d mydb -a -f scripts/init.sql
+
+    - name: Verify if init.sql was executed successfully
+      run: |
+        sleep 5
+        psql -h ${{ secrets.USER }} -U ${{ secrets.PASSWORD }} -d ${{ secrets.DB }} -c "SELECT COUNT(*) FROM egresado_basico;"
