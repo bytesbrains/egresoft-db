@@ -13,26 +13,11 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: ${{ secrets.USER }}
-          POSTGRES_PASSWORD: ${{ secrets.PASSWORD }}
-          POSTGRES_DB: ${{ secrets.DB }}
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-        ports:
-          - 5432:5432
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
-    - name: Execute init.sql
-      run: |
-        psql -h localhost -U ${{ secrets.USER }} -d ${{ secrets.DB }} -a -f scripts/init.sql
-
-    - name: Verify if init.sql was executed successfully
-      run: |
-        sleep 5
-        psql -h localhost -U ${{ secrets.USER }} -d ${{ secrets.DB }} -c "SELECT COUNT(*) FROM egresado_basico;"
+     - uses: harmon758/postgresql-action@v1
+       with:
+        postgresql version: '15'
+        postgresql db: ${{ secrets.DB }}
+        postgresql user: ${{ secrets.USER }}
+        postgresql password: ${{ secrets.PASSWORD }} 
+        postgresql init scripts: /scripts/init.sql
