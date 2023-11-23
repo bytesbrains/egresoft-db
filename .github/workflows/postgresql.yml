@@ -1,32 +1,37 @@
 name: PostgreSQL Test
 
 on:
- push:
+  push:
     branches:
       - main
- pull_request:
+  pull_request:
     branches:
       - main
-      
+
 jobs:
   build:
 
     runs-on: ubuntu-latest
 
     steps:
-     - name: Checkout repository
-       uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-     - name: Execute init.sql
-       uses: harmon758/postgresql-action@v1
-       with:
-        postgresql version: '15'
-        postgresql db: ${{ secrets.DB }}
-        postgresql user: ${{ secrets.USER }}
-        postgresql password: ${{ secrets.PASSWORD }} 
-        postgresql init scripts: /scripts/init.sql
+      - name: Execute init.sql
+        env:
+          PGHOST: ${{ secrets.HOST }}
+          PGDATABASE: ${{ secrets.DB }}
+          PGUSER: ${{ secrets.USER }}
+          PGPASSWORD: ${{ secrets.PASSWORD }}
+        run: |
+          psql -h $PGHOST -U $PGUSER -d $PGDATABASE -f /scripts/init.sql
 
-     - name: Verify if init.sql was executed successfully
-       run: |
-        sleep 5
-        psql -h ${{ secrets.HOST }} -U ${{ secrets.USER }} -d ${{ secrets.DB }} -c "SELECT COUNT(*) FROM egresado_basico;"
+      - name: Verify if init.sql was executed successfully
+        env:
+          PGHOST: ${{ secrets.HOST }}
+          PGDATABASE: ${{ secrets.DB }}
+          PGUSER: ${{ secrets.USER }}
+          PGPASSWORD: ${{ secrets.PASSWORD }}
+        run: |
+          sleep 5
+          psql -h $PGHOST -U $PGUSER -d $PGDATABASE -c "SELECT COUNT(*) FROM egresado_basico;"
