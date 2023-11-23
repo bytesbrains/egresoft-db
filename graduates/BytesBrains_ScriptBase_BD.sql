@@ -111,7 +111,7 @@ CREATE TABLE egresado_basico (
   id_especialidad char(50),
   periodo_egreso CHAR(50) NOT NULL,
   nombre json NOT NULL,
-  edad CHAR(50) NOT NULL,
+  edad INT NOT NULL,
   curp VARCHAR(18) NOT NULL,
   sexo char(50) NOT NULL,
   telefono json NOT NULL,
@@ -128,9 +128,7 @@ CREATE TABLE egresado_basico (
   CONSTRAINT ck_periodo_egreso 
   CHECK (periodo_egreso ~ '^[a-zA-Z]+[ -]+[a-zA-Z]+[ -]+[0-9]{4}$'), --solo acepta esta estructura mes-mes nnnn ejemplo Agosto-Diciembre 2023
   CONSTRAINT ck_solo_existen_dos_generos 
-  CHECK (valida_genero(sexo)),-- Restriccion para validar El genero
-  CONSTRAINT ck_egresado_solo_numeros 
-  CHECK (edad ~ '^[[:digit:]]+$')-- Restriccion que solo acepta numeros
+  CHECK (valida_genero(sexo))-- Restriccion para validar El genero
 );
 --Tabla Experiencia laboral
 CREATE TABLE experiencia_laboral (
