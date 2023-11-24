@@ -181,13 +181,13 @@ CREATE TABLE bigdat (
 CREATE TABLE encuesta (
   id_encuesta char(50),
   id_secc char(50),
-  periodo_vigente char(50) not null,
+  periodo_vigente VARCHAR(50) not null, --Correcion de CHAR a VARCHAR
   nombre_encuesta varchar(255) not null,
   nombre_secc varchar(255) not null,
   detalle TEXT,
   CONSTRAINT pk_encuesta PRIMARY KEY (id_encuesta, id_secc),
-  --////esta en desarrollo////CONSTRAINT ck_encuesta_periodo 
-  --////esta en desarrollo////CHECK (periodo_vigente ~ '^[[:alpha:][:space:]]+[ -]+[[:alpha:][:space:]]+[ -]+[[:digit:][:space:]]{4}$'),--solo acepta esta estructura mes-mes nnnn ejemplo Agosto-Diciembre 2023
+  CONSTRAINT ck_encuesta_periodo 
+  CHECK (periodo_vigente ~ '^[[:alpha:][:space:]]+[ -]+[[:alpha:][:space:]]+[ -]+[[:digit:][:space:]]{4}$'),--solo acepta esta estructura mes-mes nnnn ejemplo Agosto-Diciembre 2023
   CONSTRAINT ck_encuesta_solo_alfabeto
   CHECK (nombre_encuesta ~ '^[[:alpha:][:digit:][:space:]]+$'
   AND nombre_secc ~ '^[[:alpha:][:digit:][:space:]]+$')
