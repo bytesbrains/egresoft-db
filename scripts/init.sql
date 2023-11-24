@@ -120,7 +120,7 @@ CREATE TABLE egresado_basico (
   id_carrera char(50),
   modalidad char(50),
   id_especialidad char(50),
-  periodo_egreso CHAR(50) NOT NULL,
+  periodo_egreso VARCHAR(50) NOT NULL, -- Cambié el tipo de datos a VARCHAR por lo que solo aceptaba numeros.
   nombre json NOT NULL,
   edad INT NOT NULL,
   curp VARCHAR(18) NOT NULL,
@@ -129,17 +129,17 @@ CREATE TABLE egresado_basico (
   correo json NOT NULL,
   direccion json NOT NULL,
   CONSTRAINT fk1_egresado_basico FOREIGN KEY (id_egre)
-  REFERENCES usuarios (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
+    REFERENCES usuarios (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT fk2_egresado_basico FOREIGN KEY (id_carrera, modalidad) 
-  REFERENCES carrera (id_carrera, modalidad) ON UPDATE CASCADE ON DELETE CASCADE,
+    REFERENCES carrera (id_carrera, modalidad) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT fk3_egresado_basico FOREIGN KEY (id_especialidad) 
-  REFERENCES especialidad (id_especialidad) ON UPDATE CASCADE ON DELETE CASCADE,
+    REFERENCES especialidad (id_especialidad) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT ck_egresado_modalidad
-  CHECK (modalidad ~ '^[[:alpha:][:space:]]+$'),--Esta restriccion solo acepta Presencial o Distancia
-  --////esta en desarrollo////CONSTRAINT ck_periodo_egreso 
-  --////esta en desarrollo////CHECK (periodo_egreso ~ '^[[:alpha:][:space:]]+[ -]+[[:alpha:][:space:]]+[ -]+[[:digit:][:space:]]{4}$'), --solo acepta esta estructura mes-mes nnnn ejemplo Agosto-Diciembre 2023
+    CHECK (modalidad ~ '^[[:alpha:][:space:]]+$'), -- Esta restricción solo acepta Presencial o Distancia
+  CONSTRAINT ck_periodo_egreso 
+    CHECK (periodo_egreso ~ '^[[:alpha:][:space:]]+[ -]+[[:alpha:][:space:]]+[ -]+[[:digit:][:space:]]{4}$'), -- Solo acepta esta estructura mes-mes nnnn, ejemplo: Agosto-Diciembre 2023
   CONSTRAINT ck_solo_existen_dos_generos 
-  CHECK (valida_genero(sexo))-- Restriccion para validar El genero
+    CHECK (valida_genero(sexo)) -- Restricción para validar el género
 );
 --Tabla Experiencia laboral
 CREATE TABLE experiencia_laboral (
