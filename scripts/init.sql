@@ -61,9 +61,9 @@ CREATE TABLE plan_estudio (
   CONSTRAINT fk2_plan_estudio FOREIGN KEY (id_especialidad) 
   REFERENCES especialidad (id_especialidad) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT ck_plan_solo_alfabeto
-  CHECK (modalidad ~ '^[[:alpha:][:space:]]+$'),--Esta restriccion solo acepta Presencial o aDistancia
-  CONSTRAINT ck_plan_periodo 
-  CHECK (periodo ~ '^[[:alpha:][:space:]]+[ -]+[[:alpha:][:space:]]+[ -]+[[:digit:][:space:]]{4}$')--solo acepta esta estructura mes-mes nnnn ejemplo Agosto-Diciembre 2023
+  CHECK (modalidad ~ '^[[:alpha:][:space:]]+$')--////esta en desarrollo////,--Esta restriccion solo acepta Presencial o aDistancia
+  -- ////esta en desarrollo////   CONSTRAINT ck_plan_periodo 
+  -- ////esta en desarrollo//// CHECK (periodo ~ '^[[:alpha:][:space:]]+[ -]+[[:alpha:][:space:]]+[ -]+[[:digit:][:space:]]{4}$')--solo acepta esta estructura mes-mes nnnn ejemplo Agosto-Diciembre 2023
 );
 
 --Tabla Usuario
@@ -136,8 +136,8 @@ CREATE TABLE egresado_basico (
   REFERENCES especialidad (id_especialidad) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT ck_egresado_modalidad
   CHECK (modalidad ~ '^[[:alpha:][:space:]]+$'),--Esta restriccion solo acepta Presencial o Distancia
-  CONSTRAINT ck_periodo_egreso 
-  CHECK (periodo_egreso ~ '^[[:alpha:][:space:]]+[ -]+[[:alpha:][:space:]]+[ -]+[[:digit:][:space:]]{4}$'), --solo acepta esta estructura mes-mes nnnn ejemplo Agosto-Diciembre 2023
+  --////esta en desarrollo////CONSTRAINT ck_periodo_egreso 
+  --////esta en desarrollo////CHECK (periodo_egreso ~ '^[[:alpha:][:space:]]+[ -]+[[:alpha:][:space:]]+[ -]+[[:digit:][:space:]]{4}$'), --solo acepta esta estructura mes-mes nnnn ejemplo Agosto-Diciembre 2023
   CONSTRAINT ck_solo_existen_dos_generos 
   CHECK (valida_genero(sexo))-- Restriccion para validar El genero
 );
@@ -186,8 +186,8 @@ CREATE TABLE encuesta (
   nombre_secc varchar(255) not null,
   detalle TEXT,
   CONSTRAINT pk_encuesta PRIMARY KEY (id_encuesta, id_secc),
-  CONSTRAINT ck_encuesta_periodo 
-  CHECK (periodo_vigente ~ '^[[:alpha:][:space:]]+[ -]+[[:alpha:][:space:]]+[ -]+[[:digit:][:space:]]{4}$'),--solo acepta esta estructura mes-mes nnnn ejemplo Agosto-Diciembre 2023
+  --////esta en desarrollo////CONSTRAINT ck_encuesta_periodo 
+  --////esta en desarrollo////CHECK (periodo_vigente ~ '^[[:alpha:][:space:]]+[ -]+[[:alpha:][:space:]]+[ -]+[[:digit:][:space:]]{4}$'),--solo acepta esta estructura mes-mes nnnn ejemplo Agosto-Diciembre 2023
   CONSTRAINT ck_encuesta_solo_alfabeto
   CHECK (nombre_encuesta ~ '^[[:alpha:][:digit:][:space:]]+$'
   AND nombre_secc ~ '^[[:alpha:][:digit:][:space:]]+$')
