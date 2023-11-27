@@ -279,86 +279,316 @@ CREATE TABLE historial (
   hora timestamp not null,
   accion varchar (255)
 );
-CREATE OR REPLACE FUNCTION registrar_accion() RETURNS TRIGGER AS $$ BEGIN IF TG_OP = 'INSERT' THEN
-INSERT INTO historial (usuario, hora, accion)
-VALUES (
-    user,
-    now(),
-    'ingreso datos en la tabla: ' || TG_ARGV [0]
-  );
-ELSIF TG_OP = 'UPDATE' THEN
-INSERT INTO historial (usuario, hora, accion)
-VALUES (
-    user,
-    now(),
-    'actualizo datos en la tabla: ' || TG_ARGV [0]
-  );
-END IF;
-RETURN NEW;
+--Funcion para registrar acciones en las tablas
+CREATE OR REPLACE FUNCTION registrar_accion()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    INSERT INTO historial (usuario, hora, accion)
+    VALUES (
+      user,
+      now(),
+      'ingreso datos en la tabla: ' || TG_ARGV[0]
+    );
+  ELSIF TG_OP = 'UPDATE' THEN
+    INSERT INTO historial (usuario, hora, accion)
+    VALUES (
+      user,
+      now(),
+      'actualizo datos en la tabla: ' || TG_ARGV[0]
+    );
+  ELSIF TG_OP = 'DELETE' THEN
+    INSERT INTO historial (usuario, hora, accion)
+    VALUES (
+      user,
+      now(),
+      'borro datos en la tabla: ' || TG_ARGV[0]
+    );
+
+  END IF;
+
+  RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-CREATE TRIGGER historial_trigger_carrera
-AFTER
-INSERT
-  OR
-UPDATE ON carrera FOR EACH ROW EXECUTE FUNCTION registrar_accion('carrera');
-CREATE TRIGGER historial_trigger_especialidad
-AFTER
-INSERT
-  OR
-UPDATE ON especialidad FOR EACH ROW EXECUTE FUNCTION registrar_accion('especialidad');
-CREATE TRIGGER historial_trigger_plan_estudio
-AFTER
-INSERT
-  OR
-UPDATE ON plan_estudio FOR EACH ROW EXECUTE FUNCTION registrar_accion('plan_estudio');
-CREATE TRIGGER historial_trigger_usuarios
-AFTER
-INSERT
-  OR
-UPDATE ON usuarios FOR EACH ROW EXECUTE FUNCTION registrar_accion('usuarios');
-CREATE TRIGGER historial_trigger_egresado_basico
-AFTER
-INSERT
-  OR
-UPDATE ON egresado_basico FOR EACH ROW EXECUTE FUNCTION registrar_accion('egresado_basico');
-CREATE TRIGGER historial_trigger_empleador_basico
-AFTER
-INSERT
-  OR
-UPDATE ON empleador_basico FOR EACH ROW EXECUTE FUNCTION registrar_accion('empleador_basico');
-CREATE TRIGGER historial_trigger_administrativo_basico
-AFTER
-INSERT
-  OR
-UPDATE ON administrativo_basico FOR EACH ROW EXECUTE FUNCTION registrar_accion('administrativo_basico');
-CREATE TRIGGER historial_trigger_experiencia_laboral
-AFTER
-INSERT
-  OR
-UPDATE ON experiencia_laboral FOR EACH ROW EXECUTE FUNCTION registrar_accion('experiencia_laboral');
-CREATE TRIGGER historial_trigger_bigdat
-AFTER
-INSERT
-  OR
-UPDATE ON bigdat FOR EACH ROW EXECUTE FUNCTION registrar_accion('bigdat');
-CREATE TRIGGER historial_trigger_encuesta
-AFTER
-INSERT
-  OR
-UPDATE ON encuesta FOR EACH ROW EXECUTE FUNCTION registrar_accion('encuesta');
-CREATE TRIGGER historial_trigger_pregunta
-AFTER
-INSERT
-  OR
-UPDATE ON pregunta FOR EACH ROW EXECUTE FUNCTION registrar_accion('pregunta');
-CREATE TRIGGER historial_trigger_respuesta_Usuario
-AFTER
-INSERT
-  OR
-UPDATE ON respuesta_Usuario FOR EACH ROW EXECUTE FUNCTION registrar_accion('respuesta_Usuario');
-CREATE TRIGGER historial_trigger_respuesta_detallada
-AFTER
-INSERT
-  OR
-UPDATE ON respuesta_detallada FOR EACH ROW EXECUTE FUNCTION registrar_accion('respuesta_detallada');
+--Funcion para registrar cambio de rol
+CREATE OR REPLACE FUNCTION registrar_cambio_rol()
+RETURNS TRIGGER AS $$
+DECLARE
+  old_role_name TEXT;
+  new_role_name TEXT;
+  changing_user TEXT;
+  target_user TEXT;
+BEGIN
+  SELECT rolname INTO old_role_name FROM pg_roles WHERE oid = current_setting('role')::oid;
+  SELECT rolname INTO new_role_name FROM pg_roles WHERE oid = SESSION_USER::oid;
+  changing_user := SESSION_USER::TEXT;
+  target_user := NEW.target_user::TEXT;
+  IF TG_OP = 'SET ROLE' THEN
+    INSERT INTO historial (usuario, hora, accion)
+    VALUES (
+      changing_user,
+      now(),
+      'cambio de rol desde ' || old_role_name || ' a ' || new_role_name || ' para ' || target_user
+    );
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+--Funcion para registrar sesiones
+CREATE OR REPLACE FUNCTION registrar_session()
+RETURNS TRIGGER AS $$
+DECLARE
+  changing_user TEXT;
+  target_user TEXT;
+BEGIN
+  changing_user := SESSION_USER::TEXT;
+  target_user := NEW.target_user::TEXT;
+IF TG_OP = 'SET SESSION AUTHORIZATION' THEN
+    INSERT INTO historial (usuario, hora, accion)
+    VALUES (
+      changing_user,
+      now(),
+      'cambio de autorización de sesión para ' || target_user
+    );
+
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger para INSERT en carrera
+CREATE TRIGGER historial_trigger_insert_carrera
+AFTER INSERT ON carrera
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('carrera');
+
+-- Trigger para UPDATE en carrera
+CREATE TRIGGER historial_trigger_update_carrera
+AFTER UPDATE ON carrera
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('carrera');
+
+-- Trigger para DELETE en carrera
+CREATE TRIGGER historial_trigger_delete_carrera
+AFTER DELETE ON carrera
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('carrera');
+
+-- Trigger para INSERT en especialidad
+CREATE TRIGGER historial_trigger_insert_especialidad
+AFTER INSERT ON especialidad
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('especialidad');
+
+-- Trigger para UPDATE en especialidad
+CREATE TRIGGER historial_trigger_update_especialidad
+AFTER UPDATE ON especialidad
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('especialidad');
+
+-- Trigger para DELETE en especialidad
+CREATE TRIGGER historial_trigger_delete_especialidad
+AFTER DELETE ON especialidad
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('especialidad');
+
+-- Trigger para INSERT en plan_estudio
+CREATE TRIGGER historial_trigger_insert_plan_estudio
+AFTER INSERT ON plan_estudio
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('plan_estudio');
+
+-- Trigger para UPDATE en plan_estudio
+CREATE TRIGGER historial_trigger_update_plan_estudio
+AFTER UPDATE ON plan_estudio
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('plan_estudio');
+
+-- Trigger para DELETE en plan_estudio
+CREATE TRIGGER historial_trigger_delete_plan_estudio
+AFTER DELETE ON plan_estudio
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('plan_estudio');
+
+-- Trigger para INSERT en usuarios
+CREATE TRIGGER historial_trigger_insert_usuarios
+AFTER INSERT ON usuarios
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('usuarios');
+
+-- Trigger para UPDATE en usuarios
+CREATE TRIGGER historial_trigger_update_usuarios
+AFTER UPDATE ON usuarios
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('usuarios');
+
+-- Trigger para DELETE en usuarios
+CREATE TRIGGER historial_trigger_delete_usuarios
+AFTER DELETE ON usuarios
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('usuarios');
+
+-- Trigger para INSERT en egresado_basico
+CREATE TRIGGER historial_trigger_insert_egresado_basico
+AFTER INSERT ON egresado_basico
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('egresado_basico');
+
+-- Trigger para UPDATE en egresado_basico
+CREATE TRIGGER historial_trigger_update_egresado_basico
+AFTER UPDATE ON egresado_basico
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('egresado_basico');
+
+-- Trigger para DELETE en egresado_basico
+CREATE TRIGGER historial_trigger_delete_egresado_basico
+AFTER DELETE ON egresado_basico
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('egresado_basico');
+
+-- Trigger para INSERT en empleador_basico
+CREATE TRIGGER historial_trigger_insert_empleador_basico
+AFTER INSERT ON empleador_basico
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('empleador_basico');
+
+-- Trigger para UPDATE en empleador_basico
+CREATE TRIGGER historial_trigger_update_empleador_basico
+AFTER UPDATE ON empleador_basico
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('empleador_basico');
+
+-- Trigger para DELETE en empleador_basico
+CREATE TRIGGER historial_trigger_delete_empleador_basico
+AFTER DELETE ON empleador_basico
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('empleador_basico');
+
+-- Trigger para INSERT en administrativo_basico
+CREATE TRIGGER historial_trigger_insert_administrativo_basico
+AFTER INSERT ON administrativo_basico
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('administrativo_basico');
+
+-- Trigger para UPDATE en administrativo_basico
+CREATE TRIGGER historial_trigger_update_administrativo_basico
+AFTER UPDATE ON administrativo_basico
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('administrativo_basico');
+
+-- Trigger para DELETE en administrativo_basico
+CREATE TRIGGER historial_trigger_delete_administrativo_basico
+AFTER DELETE ON administrativo_basico
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('administrativo_basico');
+
+-- Trigger para INSERT en experiencia_laboral
+CREATE TRIGGER historial_trigger_insert_experiencia_laboral
+AFTER INSERT ON experiencia_laboral
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('experiencia_laboral');
+
+-- Trigger para UPDATE en experiencia_laboral
+CREATE TRIGGER historial_trigger_update_experiencia_laboral
+AFTER UPDATE ON experiencia_laboral
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('experiencia_laboral');
+
+-- Trigger para DELETE en experiencia_laboral
+CREATE TRIGGER historial_trigger_delete_experiencia_laboral
+AFTER DELETE ON experiencia_laboral
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('experiencia_laboral');
+
+-- Trigger para INSERT en bigdat
+CREATE TRIGGER historial_trigger_insert_bigdat
+AFTER INSERT ON bigdat
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('bigdat');
+
+-- Trigger para UPDATE en bigdat
+CREATE TRIGGER historial_trigger_update_bigdat
+AFTER UPDATE ON bigdat
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('bigdat');
+
+-- Trigger para DELETE en bigdat
+CREATE TRIGGER historial_trigger_delete_bigdat
+AFTER DELETE ON bigdat
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('bigdat');
+
+-- Trigger para INSERT en encuesta
+CREATE TRIGGER historial_trigger_insert_encuesta
+AFTER INSERT ON encuesta
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('encuesta');
+
+-- Trigger para UPDATE en encuesta
+CREATE TRIGGER historial_trigger_update_encuesta
+AFTER UPDATE ON encuesta
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('encuesta');
+
+-- Trigger para DELETE en encuesta
+CREATE TRIGGER historial_trigger_delete_encuesta
+AFTER DELETE ON encuesta
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('encuesta');
+
+-- Trigger para INSERT en pregunta
+CREATE TRIGGER historial_trigger_insert_pregunta
+AFTER INSERT ON pregunta
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('pregunta');
+
+-- Trigger para UPDATE en pregunta
+CREATE TRIGGER historial_trigger_update_pregunta
+AFTER UPDATE ON pregunta
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('pregunta');
+
+-- Trigger para DELETE en pregunta
+CREATE TRIGGER historial_trigger_delete_pregunta
+AFTER DELETE ON pregunta
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('pregunta');
+
+-- Trigger para INSERT en respuesta_usuario
+CREATE TRIGGER historial_trigger_insert_respuesta_usuario
+AFTER INSERT ON respuesta_usuario
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('respuesta_usuario');
+
+-- Trigger para UPDATE en respuesta_usuario
+CREATE TRIGGER historial_trigger_update_respuesta_usuario
+AFTER UPDATE ON respuesta_usuario
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('respuesta_usuario');
+
+-- Trigger para DELETE en respuesta_usuario
+CREATE TRIGGER historial_trigger_delete_respuesta_usuario
+AFTER DELETE ON respuesta_usuario
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('respuesta_usuario');
+
+-- Trigger para INSERT en respuesta_detallada
+CREATE TRIGGER historial_trigger_insert_respuesta_detallada
+AFTER INSERT ON respuesta_detallada
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('respuesta_detallada');
+
+-- Trigger para UPDATE en respuesta_detallada
+CREATE TRIGGER historial_trigger_update_respuesta_detallada
+AFTER UPDATE ON respuesta_detallada
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('respuesta_detallada');
+
+-- Trigger para DELETE en respuesta_detallada
+CREATE TRIGGER historial_trigger_delete_respuesta_detallada
+AFTER DELETE ON respuesta_detallada
+FOR EACH ROW
+EXECUTE FUNCTION registrar_accion('respuesta_detallada');
