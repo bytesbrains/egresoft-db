@@ -75,8 +75,6 @@ CREATE TABLE usuarios (
   id_user varchar(50) PRIMARY KEY,
   tipo varchar(50) NOT NULL,
   correo VARCHAR(255),
-  CONSTRAINT ck_usuario_id
-  CHECK (id_user ~ '^(EGR|EMP|ADM)[0-9]+$'),-- Esta restriccion solo acepta una combinacion de letras especificas segido de uno o mas digitos, ejemplos: "EGR001", "EMP001", "ADM001"
   CONSTRAINT ck_usuarios_solo_alfabeto 
   CHECK (tipo in ('graduate', 'employer', 'admin')),--Esta rescriccion solo acepta tres opciones
   CONSTRAINT ck_correo
@@ -95,8 +93,6 @@ CREATE TABLE administrativo_basico (
   telefono json NOT NULL,
   CONSTRAINT fk_administrativo FOREIGN KEY (id_adm)
   REFERENCES usuarios (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT ck_administrativo 
-  CHECK (id_adm ~ '^(ADM)[0-9]+$'),--Esta restriccion permite solo una combinacion de letras especificas
   CONSTRAINT ck_administrativo_solo_alfabeto
   CHECK (nombre ~ '^[[:alpha:][:space:]]+$'
   AND cargo ~ '^[[:alpha:][:space:]]+$'),--Esta rescriccion solo acepta caracteres Alfabeticos
@@ -116,8 +112,6 @@ CREATE TABLE empleador_basico (
   detalle TEXT,
   CONSTRAINT fk_empleador_basico FOREIGN KEY (id_emp)
   REFERENCES usuarios (id_user) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT ck_empleador_id 
-  CHECK (id_emp ~ '^(EMP)[0-9]+$'),--Esta restriccion permite solo una combinacion de letras especificas
   CONSTRAINT ck_empleador_solo_alfabetico 
   CHECK (nombre_empresa ~ '^[[:alpha:][:space:]]+$'
   AND nombre_responsable ~ '^[[:alpha:][:space:]]+$'
@@ -144,8 +138,6 @@ CREATE TABLE egresado_basico (
   REFERENCES carrera (id_carrera, modalidad) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT fk3_egresado_basico FOREIGN KEY (id_especialidad) 
   REFERENCES especialidad (id_especialidad) ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT ck_egresado_id
-  CHECK (id_egre ~ '^(EGR)[0-9]+$'),-- Esta restriccion solo acepta una combinacion de letras especificas segido de uno o mas digitos, ejemplo "EGR001"
   CONSTRAINT ck_egresado_id_carrera
   CHECK (id_carrera ~ '^[A-Z]{4}[-]20[0-9]{2}[-]2[0-9]{2}$'),--Esta restriccion solo permite el siguiente formato ABCD-2034-267
   CONSTRAINT ck_egresado_modalidad
@@ -172,9 +164,7 @@ CREATE TABLE experiencia_laboral (
   CONSTRAINT fk_experiencia_laboral FOREIGN KEY (id_egre) 
   REFERENCES egresado_basico (id_egre) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT ck_id_exp 
-  CHECK (id_exp ~ '^EXP[0-9]+$'),
-  CONSTRAINT ck_exp_id_egre
-  CHECK (id_egre ~ '^(EGR)[0-9]+$'),-- Esta restriccion solo acepta una combinacion de letras especificas segido de uno o mas digitos, ejemplo "EGR001"
+  CHECK (id_exp ~ '^EXP[0-9]+$')
   CONSTRAINT ck_exp_solo_alfabeto
   CHECK (empresa ~ '^[[:alpha:][:space:]]+$'
   AND cargo ~ '^[[:alpha:][:space:]]+$'),
@@ -195,8 +185,6 @@ CREATE TABLE bigdat (
   REFERENCES egresado_basico (id_egre) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT ck_bigdat_id
   CHECK (id ~ '^(BGD)[0-9]+$'),
-  CONSTRAINT ck_bigdat_id_egre 
-  CHECK ((id_egre ~ '^(EGR)[0-9]+$')),-- Esta restriccion solo acepta una combinacion de letras especificas segido de uno o mas digitos, ejemplo "EGR001"
   CONSTRAINT ck_bigdat_tipo 
   CHECK (tipo in ('jpg', 'pdf', 'svg', 'png'))
 );
@@ -250,7 +238,6 @@ CREATE TABLE respuesta_Usuario (
   REFERENCES encuesta (id_encuesta, id_secc) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT ck_Ru_id
   CHECK (id_respuesta ~ '^(RSP)[0-9]+$'
-  AND id_user ~ '^(EGR|EMP)[0-9]+$'
   AND id_encuesta ~ '^(ENC)[0-9]+$'
   AND id_secc ~ '^(SEC)[0-9]+$'),
   CONSTRAINT ck_Ru_fecha 
